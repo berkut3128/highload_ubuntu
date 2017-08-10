@@ -1,0 +1,26 @@
+---
+
+- name: Restart sshd
+  systemd: state=restarted name=sshd
+
+- name: Restart snmpd
+  systemd: state=restarted name=snmpd
+
+- name: Restart bacula-fd
+  systemd: state=restarted name=bacula-fd
+
+- name: Restart sysstat
+  systemd: state=restarted name=sysstat
+
+- name: Restart fail2ban
+  systemd: state=restarted name=fail2ban
+
+- name: Restart mysql
+  systemd: state=restarted name=mysql
+
+- name: Restart nginx
+  systemd: state=restarted name=nginx
+
+- name: Restart php-fpm
+  systemd: state=restarted name=php7.1-fpm
+

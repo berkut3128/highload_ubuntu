@@ -1,0 +1,126 @@
+---
+
+- name: Copy sshd config on remote host
+  template: src=conf/sshd_config.j2
+            dest=/etc/ssh/sshd_config
+            owner=root
+            group=root
+            mode=0644
+
+- name: Copy sudo config on remote host
+  template: src=conf/sudoers.j2
+            dest=/etc/sudoers
+            owner=root
+            group=root
+            mode=0440
+
+  notify:
+    - Restart sshd
+
+- name: apt install aptitude
+  apt: name=aptitude update_cache=yes
+
+- name: apt upgrade
+  apt: upgrade=full
+
+- name: Create user
+  shell: addgroup dev && useradd {{ user }} -s /bin/bash -m -g dev -g sudo
+
+- name: Adding user in the file sudoers
+  lineinfile: "dest=/etc/sudoers line='{{ user }} ALL=(ALL) NOPASSWD: ALL\n'"
+
+- name: Create directory .ssh
+  file: path=/home/{{ user }}/.ssh
+        state=directory
+        mode=0700
+        owner={{ user }}
+        group={{ user }}
+
+- name: Copy public key on remote host
+  template: src={{ user }}/authorized_keys.j2
+            dest=/home/{{ user }}/.ssh/authorized_keys
+            owner={{ user }}
+            group={{ user }}
+            mode=0600
+
+- name: Copy sysctl.conf on remote host
+  template: src=sysctl.conf.j2
+            dest=/etc/sysctl.conf
+            owner=root
+            group=root
+            mode=0644
+
+- name: Reload sysctl
+  shell: sysctl -p
+
+- name: Install package
+  apt: name={{ item }} update_cache=yes
+  with_items: "{{ packages }}"
+ 
+- name: Copy config SNMPD on remote host
+  template: src=snmpd.conf.j2
+            dest=/etc/snmp/snmpd.conf
+            owner=root
+            group=root
+            mode=0600
+  notify: 
+    - Restart snmpd
+
+- name: Copy config Bacula-fd on remote host
+  template: src=bacula-fd.conf.j2
+            dest=/etc/bacula/bacula-fd.conf
+            owner=root
+            group=root
+            mode=0640
+  notify:
+    - Restart bacula-fd
+
+- name: Copy script for backup MYSQL on remote host
+  template: src=scripts/backupmysql.sh.j2
+            dest=/etc/bacula/scripts/backupmysql.sh
+            owner=root
+            group=root
+            mode=0755
+
+- name: Copy sysstat on remote host
+  template: src=sysstat.j2
+            dest=/etc/default/sysstat
+            owner=root
+            group=root
+            mode=0644
+  notify:
+    - Restart sysstat
+
+- name: Copy CRON sysstat on remote host
+  template: src=cronsysstat.j2
+            dest=/etc/cron.d/sysstat
+            owner=root
+            group=root
+            mode=0644
+
+- name: Copy fail2ban on remote host
+  template: src=jail.conf.j2
+            dest=/etc/fail2ban/jail.conf
+            owner=root
+            group=root
+            mode=0644
+  notify:
+    - Restart fail2ban
+
+- name: Copy rules iptables on remote host
+  template: src=firewall_rules.j2
+            dest=/etc/network/firewall
+            owner=root
+            group=root
+            mode=0644
+
+- name: Copy script iptables for startup on remote host
+  template: src=firewall.j2
+            dest=/etc/network/if-pre-up.d/firewall
+            owner=root
+            group=root
+            mode=0755
+
+- name: Load rules iptables
+  shell: /etc/network/if-pre-up.d/firewall
+

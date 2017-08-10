@@ -1,0 +1,45 @@
+---
+
+user: shadow
+packages:
+  - vim
+  - tcpdump
+  - sysstat
+  - tmux
+  - iotop
+  - curl
+  - snmpd
+  - bacula-fd
+  - unzip
+  - fail2ban
+
+mysql_pass: EeZesh2jiengah3
+
+mysql_packages:
+  - percona-server-server-5.7
+  - python-mysqldb
+
+percona_toolkit:
+  - mysql -u root -e "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
+  - mysql -u root -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
+  - mysql -u root -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
+
+
+php_packages:
+  - php7.1
+  - php7.1-fpm
+  - php7.1-curl
+  - php7.1-bcmath
+  - php7.1-bz2
+  - php7.1-gd
+  - php7.1-intl
+  - php7.1-json
+  - php7.1-mbstring
+  - php7.1-mcrypt
+  - php7.1-mysql
+  - php7.1-opcache
+  - php7.1-soap
+  - php7.1-xml
+  - php7.1-zip
+
+

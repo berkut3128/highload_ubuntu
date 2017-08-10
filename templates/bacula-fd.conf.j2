@@ -1,0 +1,36 @@
+
+#
+# List Directors who are permitted to contact this File daemon
+#
+Director {
+  Name = director name
+  Password = "hKredqumcYn2qde"
+}
+
+#
+# Restricted Director, used by tray-monitor to get the
+#   status of the file daemon
+#
+Director {
+  Name = director-mon
+  Password = "vgGrCtVP9nZPmav"
+  Monitor = yes
+}
+
+#
+# "Global" File daemon configuration specifications
+#
+FileDaemon {                          # this is me
+  Name = server-fd
+  FDport = 9102                  # where we listen for the director
+  WorkingDirectory = /var/lib/bacula
+  Pid Directory = /var/run/bacula
+  Maximum Concurrent Jobs = 20
+#  FDAddress = 127.0.0.1
+}
+
+# Send all messages except skipped files back to Director
+Messages {
+  Name = Standard
+  director = server-dir = all, !skipped, !restored
+}

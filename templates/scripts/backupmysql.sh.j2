@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mysqldump -u root -p{{ mysql_pass }} --all-databases --set-gtid-purged=OFF --triggers --routines --events | gzip > /home/berkut/alldatabases.sql.gz
+
+

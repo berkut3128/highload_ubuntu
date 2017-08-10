@@ -1,0 +1,36 @@
+---
+ 
+- name: Add repo for php
+  apt_repository: repo='ppa:ondrej/php'
+    
+- name: Install php
+  apt: name={{ item }} update_cache=yes
+  with_items: "{{ php_packages }}"
+
+- name: Copy php-fpm config on remote host
+  template: src=php-fpm/php.ini.j2
+            dest=/etc/php/7.1/fpm/php.ini
+            owner=root
+            group=root
+            mode=0644
+
+- name: Copy www.conf config on remote host
+  copy: src=files/www.conf
+        dest=/etc/php/7.1/fpm/pool.d/www.conf
+        owner=root
+        group=root
+        mode=0644
+
+  notify:
+    - Restart php-fpm
+   
+- name: Install composer
+  shell: curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+ 
+- name: Create file phpinfo
+  lineinfile: dest={{ dir_for_web }}/yarik.php 
+              line='<?php\nphpinfo();\n?>' 
+              owner=root group=root mode=0644 create=yes
+
+   
+

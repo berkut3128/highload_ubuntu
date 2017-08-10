@@ -1,0 +1,46 @@
+---
+
+- name: Download deb packet for percona-server
+  get_url: url=https://repo.percona.com/apt/percona-release_0.1-4.{{ ansible_distribution_release }}_all.deb
+           dest=/tmp/percona-release_0.1-4.{{ ansible_distribution_release }}_all.deb
+
+- name: Add repo for percona-server
+  shell: dpkg -i /tmp/percona-release_0.1-4.{{ ansible_distribution_release }}_all.deb
+
+- name: Install Mysql
+  apt: name={{ item }} update_cache=yes
+  with_items: "{{ mysql_packages }}"
+
+- name: Update mysql root password for all root accounts
+  mysql_user: login_user=root
+              login_password=''
+              name=root
+              password={{ mysql_pass }}
+              priv=*.*:ALL,GRANT
+              host={{ item }}
+  with_items:
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+- name: Create file /root/.my.cnf adding login and password
+  lineinfile: "dest=/root/.my.cnf line='[client]\nuser=root\npassword={{ mysql_pass }}' owner=root group=root mode=0600 create=yes"
+
+- name: delete anonymous MySQL server user for localhost
+  mysql_user: user='' host=localhost state=absent
+
+- name: remove the MySQL test database
+  mysql_db: db=test state=absent
+
+- name: Copy Mysql config on remote host
+  template: src=mysql/mysqld.cnf.j2
+            dest=/etc/mysql/percona-server.conf.d/mysqld.cnf
+            owner=root
+            group=root
+            mode=0644
+  notify:
+    - Restart mysql
+
+
+
+

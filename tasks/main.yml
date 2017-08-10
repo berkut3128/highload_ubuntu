@@ -1,0 +1,17 @@
+---
+- name: INCLUDE | Install packages
+  include: install.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: INCLUDE | Install and configure mysql-server 
+  include: mysql_server.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: INCLUDE | Install and configure nginx
+  include: nginx_server.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: INCLUDE | Install and configure php
+  include: php71.yml
+  when: ansible_distribution == 'Ubuntu'
+
